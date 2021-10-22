@@ -6,6 +6,8 @@ mode=$1     # graph/stat/train/translate/eval/curve
 dataset=$2
 model=$3
 CUDA=$4
+epoch=$5
+resume_training_epoch=$6
 
 # try catch
 if [ ! $model ]; then
@@ -238,7 +240,7 @@ elif [ $mode = 'graph' ]; then
         
 elif [ $mode = 'train' ]; then
     # cp -r ./ckpt/$dataset/$model ./bak/ckpt    # too big, stop back up it
-    rm -rf ./ckpt/$dataset/$model
+    # rm -rf ./ckpt/$dataset/$model
     mkdir -p ./ckpt/$dataset/$model
     
     # create the training folder
@@ -347,6 +349,8 @@ elif [ $mode = 'train' ]; then
         --lr_gamma 0.5 \
         --warmup_step 4000 \
         --gat_heads 8 \
+        --epoch $epoch \
+        --resume_training_epoch $resume_training_epoch
 
 elif [ $mode = 'translate' ]; then
     rm ./processed/$dataset/$model/pertub-ppl.txt

@@ -510,6 +510,14 @@ def main(**kwargs):
 
     print('[!] Net:')
     print(net)
+    
+    if (kwargs['resume_training_epoch'] != 0):
+        # load best model
+        load_best_model(kwargs['dataset'], kwargs['model'], 
+                        net, min_threshold=kwargs['resume_training_epoch'],
+                        max_threshold=kwargs['resume_training_epoch'])
+               
+    
 
     print(f'[!] Parameters size: {sum(x.numel() for x in net.parameters())}')
     print(f'[!] Optimizer Adam')
@@ -534,6 +542,7 @@ def main(**kwargs):
 
     # train
     for epoch in pbar:
+        aggregated_epoch = epoch + kwargs['resume_training_epoch']
         # prepare dataset
         if kwargs['hierarchical'] == 1:
             if kwargs['graph'] == 1:
@@ -646,24 +655,25 @@ def main(**kwargs):
             patience = 0
         else:
             patience += 1
+            
                           
         # checkpoint state
         # try not save all the checkpoints
         if epoch > int(kwargs['epochs'] * 0.8):
             optim_state = optimizer.state_dict()
             state = {'net': net.state_dict(), 'opt': optim_state, 
-                     'epoch': epoch, 'patience': patience}
+                     'epoch': aggregated_epoch, 'patience': patience}
             torch.save(state, 
-                           f'./ckpt/{kwargs["dataset"]}/{kwargs["model"]}/vloss_{val_loss}_epoch_{epoch}.pt')
+                           f'./ckpt/{kwargs["dataset"]}/{kwargs["model"]}/vloss_{val_loss}_epoch_{aggregated_epoch}.pt')
         
         # translate on test dataset
         with torch.no_grad():
             ppl = translate(test_iter, net, **kwargs)
         
         # write the performance into the tensorboard
-        write_into_tb(kwargs['pred'], writer, writer_str, epoch, ppl, kwargs['bleu'], kwargs['model'], kwargs['dataset'])
+        write_into_tb(kwargs['pred'], writer, writer_str, aggregated_epoch, ppl, kwargs['bleu'], kwargs['model'], kwargs['dataset'])
         
-        pbar.set_description(f'Epoch: {epoch}, tfr: {round(teacher_force_ratio, 4)}, loss(train/dev): {train_loss}/{val_loss}, ppl(dev/test): {round(math.exp(val_loss), 4)}/{round(ppl, 4)}, patience: {patience}/{kwargs["patience"]}')
+        pbar.set_description(f'Epoch: {aggregated_epoch}, tfr: {round(teacher_force_ratio, 4)}, loss(train/dev): {train_loss}/{val_loss}, ppl(dev/test): {round(math.exp(val_loss), 4)}/{round(ppl, 4)}, patience: {patience}/{kwargs["patience"]}')
         
         # dynamic teach_force_ratio
         if epoch > kwargs["dynamic_tfr"]:
@@ -766,6 +776,7 @@ if __name__ == "__main__":
     parser.add_argument('--gat_heads', type=int, default=5, help='heads of GAT layer')
     parser.add_argument('--z_hidden', type=int, default=100, help='z_hidden for VHRED')
     parser.add_argument('--kl_annealing_iter', type=int, default=20000, help='KL annealing for VHRED')
+    parser.add_argument('--resume_training_epoch', type=int, default=0, help='The epoch from which to resume training')
 
     args = parser.parse_args()
 

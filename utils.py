@@ -139,7 +139,10 @@ def load_best_model(dataset, model, net, min_threshold, max_threshold):
         epoch = epoch.split('.')[0]
         val_loss, epoch = float(val_loss), int(epoch)
 
-        if min_threshold <= epoch <= max_threshold and epoch > best_epoch:
+#         if min_threshold <= epoch <= max_threshold and epoch > best_epoch:
+#             best_file = file
+#             best_epoch = epoch
+        if min_threshold <= epoch <= max_threshold and val_loss < best_loss:
             best_file = file
             best_epoch = epoch
 

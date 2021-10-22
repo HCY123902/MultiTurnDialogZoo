@@ -55,23 +55,23 @@ if __name__ == "__main__":
     
     # Embedding-based metric: Embedding Average (EA), Vector Extrema (VX), Greedy Matching (GM)
     # load the dict
-    dic = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)
-    print('[!] load the GoogleNews 300 word2vector by gensim over')
-    ea_sum, vx_sum, gm_sum, counterp = 0, 0, 0, 0
-    no_save = 0
-    for rr, cc in tqdm(list(zip(ref, tgt))):
-        ea_sum_ = cal_embedding_average(rr, cc, dic)
-        vx_sum_ = cal_vector_extrema(rr, cc, dic)
-        gm_sum += cal_greedy_matching_matrix(rr, cc, dic)
-        # gm_sum += cal_greedy_matching(rr, cc, dic)
-        if ea_sum_ != 1 and vx_sum_ != 1:
-            ea_sum += ea_sum_
-            vx_sum += vx_sum_
-            counterp += 1
-        else:
-            no_save += 1
+#     dic = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)
+#     print('[!] load the GoogleNews 300 word2vector by gensim over')
+#     ea_sum, vx_sum, gm_sum, counterp = 0, 0, 0, 0
+#     no_save = 0
+#     for rr, cc in tqdm(list(zip(ref, tgt))):
+#         ea_sum_ = cal_embedding_average(rr, cc, dic)
+#         vx_sum_ = cal_vector_extrema(rr, cc, dic)
+#         gm_sum += cal_greedy_matching_matrix(rr, cc, dic)
+#         # gm_sum += cal_greedy_matching(rr, cc, dic)
+#         if ea_sum_ != 1 and vx_sum_ != 1:
+#             ea_sum += ea_sum_
+#             vx_sum += vx_sum_
+#             counterp += 1
+#         else:
+#             no_save += 1
 
-    print(f'[!] It should be noted that UNK ratio for embedding-based: {round(no_save / (no_save + counterp), 4)}')
+#     print(f'[!] It should be noted that UNK ratio for embedding-based: {round(no_save / (no_save + counterp), 4)}')
     print(f'Model {args.model} Result')
     print(f'BLEU-1: {round(bleu1_sum, 4)}')
     print(f'BLEU-2: {round(bleu2_sum, 4)}')
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print(f'ROUGE: {round(rouge_sum / counter, 4)}')
     print(f'Distinct-1: {round(distinct_1, 4)}; Distinct-2: {round(distinct_2, 4)}')
     print(f'Ref distinct-1: {round(rdistinct_1, 4)}; Ref distinct-2: {round(rdistinct_2, 4)}')
-    print(f'EA: {round(ea_sum / counterp, 4)}')
-    print(f'VX: {round(vx_sum / counterp, 4)}')
-    print(f'GM: {round(gm_sum / counterp, 4)}')
+#     print(f'EA: {round(ea_sum / counterp, 4)}')
+#     print(f'VX: {round(vx_sum / counterp, 4)}')
+#     print(f'GM: {round(gm_sum / counterp, 4)}')
     print(f'BERTScore: {round(bert_scores, 4)}')
