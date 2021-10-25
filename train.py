@@ -301,7 +301,8 @@ def write_into_tb(pred_path, writer, writer_str, epoch, ppl, bleu_mode, model, d
     
     # BlEU
     refs, tgts = [' '.join(i) for i in ref], [' '.join(i) for i in tgt]
-    bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU(refs, tgts)
+    #bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU(refs, tgts)
+    bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_aggregate_BLEU_nltk(refs, tgts)
         
     if bleu_mode == 'perl':
         bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU_perl(dataset, model)

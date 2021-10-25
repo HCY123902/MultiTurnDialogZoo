@@ -285,7 +285,7 @@ elif [ $mode = 'train' ]; then
         lr_mini=1e-6
     else
         dropout=0.3
-        lr=1e-4
+        lr=3e-4
         lr_mini=1e-6
     fi
     
@@ -312,7 +312,7 @@ elif [ $mode = 'train' ]; then
         --min_threshold 0 \
         --max_threshold 100 \
         --seed 30 \
-        --epochs 40 \
+        --epochs $epoch \
         --lr $lr \
         --batch_size $batch_size \
         --model $model \
@@ -349,7 +349,6 @@ elif [ $mode = 'train' ]; then
         --lr_gamma 0.5 \
         --warmup_step 4000 \
         --gat_heads 8 \
-        --epoch $epoch \
         --resume_training_epoch $resume_training_epoch
 
 elif [ $mode = 'translate' ]; then

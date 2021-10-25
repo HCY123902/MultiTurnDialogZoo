@@ -39,7 +39,8 @@ if __name__ == "__main__":
         counter += 1
         
     refs, tgts = [' '.join(i) for i in ref], [' '.join(i) for i in tgt]
-    bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU(refs, tgts)
+    # bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU(refs, tgts)
+    bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_aggregate_BLEU_nltk(refs, tgts)
 
     # Distinct-1, Distinct-2
     candidates, references = [], []

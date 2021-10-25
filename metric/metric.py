@@ -13,6 +13,18 @@ import os, re
 import ipdb
 import numpy as np
 
+def cal_aggregate_BLEU_nltk(refs, tgts):
+    #print(refs)
+    #print(tgts)
+    smoothie = SmoothingFunction().method7
+    weights = [(1, 0, 0, 0), (0.5, 0.5, 0, 0), (0.33, 0.33, 0.33, 0), (0.25, 0.25, 0.25, 0.25)]
+    
+    refs = [[ref.split(' ')] for ref in refs]
+    tgts = [tgt.split(' ') for tgt in tgts]
+    result = []
+    for i in range(0,4):
+        result = result + [corpus_bleu(refs, tgts, weights=weights[i], smoothing_function=smoothie)]
+    return result[0], result[1], result[2], result[3]
 
 # BLEU of NLTK
 def cal_BLEU_nltk(refer, candidate, ngram=1):
