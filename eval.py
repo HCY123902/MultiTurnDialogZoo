@@ -8,6 +8,14 @@ import gensim
 import pickle
 from tqdm import tqdm
 
+import pickle
+
+import torch.nn as nn
+from sklearn.metrics.pairwise import cosine_similarity as cosine
+
+import nltk
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate the model")
@@ -41,6 +49,50 @@ if __name__ == "__main__":
     refs, tgts = [' '.join(i) for i in ref], [' '.join(i) for i in tgt]
     # bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_BLEU(refs, tgts)
     bleu1_sum, bleu2_sum, bleu3_sum, bleu4_sum = cal_aggregate_BLEU_nltk(refs, tgts)
+    
+    
+    # BOW
+#     embedding_size = 300
+    
+#     k = open("./processed/dailydialog/vocab.pkl", "rb")
+#     vocab, vocab_list = pickle.load(k)
+#     vocab_size = len(vocab_list)
+#     print("vocab_size: ", vocab_size)
+    
+#     init_embed(vocab_size, embedding_size)
+    
+    
+#     ref_tokens = []
+#     tgt_tokens = []
+    
+#     ref_len = np.zeros(len(refs), dtype=int)
+#     tgt_len = np.zeros(len(tgts), dtype=int)
+    
+#     for i in range(len(refs)):
+#         line = [int(vocab.get(token, 0)) for token in nltk.word_tokenize(refs[i])]
+        
+#         ref_tokens.append(line)
+#         ref_len[i] = len(line)
+        
+#         line = [int(vocab.get(token, 0)) for token in nltk.word_tokenize(tgts[i])]
+#         tgt_tokens.append(line)
+#         tgt_len[i] = len(line)
+        
+#     r = np.zeros([len(ref_tokens), np.max(ref_len)], dtype=int)
+#     t = np.zeros([len(ref_tokens), np.max(tgt_len)], dtype=int)
+    
+#     for i in range(len(refs)):
+#         r[i, :ref_len[i]] = ref_len[i]
+#         t[i, :tgt_len[i]] = tgt_len[i]
+        
+#     exa, avg, grd = sim_bow(r, ref_len, t, tgt_len)
+    
+    
+    
+    
+    # Intra Distinct-1, Distinct-2
+    intra_distinct_1, intra_distinct_2 = cal_intra_Distinct(tgt)
+    rintra_distinct_1, rintra_distinct_2 = cal_intra_Distinct(ref)
 
     # Distinct-1, Distinct-2
     candidates, references = [], []
@@ -56,21 +108,21 @@ if __name__ == "__main__":
     
     # Embedding-based metric: Embedding Average (EA), Vector Extrema (VX), Greedy Matching (GM)
     # load the dict
-#     dic = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)
-#     print('[!] load the GoogleNews 300 word2vector by gensim over')
-#     ea_sum, vx_sum, gm_sum, counterp = 0, 0, 0, 0
-#     no_save = 0
-#     for rr, cc in tqdm(list(zip(ref, tgt))):
-#         ea_sum_ = cal_embedding_average(rr, cc, dic)
-#         vx_sum_ = cal_vector_extrema(rr, cc, dic)
-#         gm_sum += cal_greedy_matching_matrix(rr, cc, dic)
-#         # gm_sum += cal_greedy_matching(rr, cc, dic)
-#         if ea_sum_ != 1 and vx_sum_ != 1:
-#             ea_sum += ea_sum_
-#             vx_sum += vx_sum_
-#             counterp += 1
-#         else:
-#             no_save += 1
+    dic = gensim.models.KeyedVectors.load_word2vec_format('./data/GoogleNews-vectors-negative300.bin', binary=True)
+    print('[!] load the GoogleNews 300 word2vector by gensim over')
+    ea_sum, vx_sum, gm_sum, counterp = 0, 0, 0, 0
+    no_save = 0
+    for rr, cc in tqdm(list(zip(ref, tgt))):
+        ea_sum_ = cal_embedding_average(rr, cc, dic)
+        vx_sum_ = cal_vector_extrema(rr, cc, dic)
+        gm_sum += cal_greedy_matching_matrix(rr, cc, dic)
+        # gm_sum += cal_greedy_matching(rr, cc, dic)
+        if ea_sum_ != 1 and vx_sum_ != 1:
+            ea_sum += ea_sum_
+            vx_sum += vx_sum_
+            counterp += 1
+        else:
+            no_save += 1
 
 #     print(f'[!] It should be noted that UNK ratio for embedding-based: {round(no_save / (no_save + counterp), 4)}')
     print(f'Model {args.model} Result')
@@ -79,9 +131,14 @@ if __name__ == "__main__":
     print(f'BLEU-3: {round(bleu3_sum, 4)}')
     print(f'BLEU-4: {round(bleu4_sum, 4)}')
     print(f'ROUGE: {round(rouge_sum / counter, 4)}')
+    print(f'Intra Distinct-1: {round(intra_distinct_1, 4)}; Intra Distinct-2: {round(intra_distinct_2, 4)}')
+    print(f'Intra Ref distinct-1: {round(rintra_distinct_1, 4)}; Intra Ref distinct-2: {round(rintra_distinct_2, 4)}')
     print(f'Distinct-1: {round(distinct_1, 4)}; Distinct-2: {round(distinct_2, 4)}')
     print(f'Ref distinct-1: {round(rdistinct_1, 4)}; Ref distinct-2: {round(rdistinct_2, 4)}')
-#     print(f'EA: {round(ea_sum / counterp, 4)}')
-#     print(f'VX: {round(vx_sum / counterp, 4)}')
-#     print(f'GM: {round(gm_sum / counterp, 4)}')
+#     print(f'EA: {round(exa, 4)}')
+#     print(f'VX: {round(avg, 4)}')
+#     print(f'GM: {round(grd, 4)}')
+    print(f'EA: {round(ea_sum / counterp, 4)}')
+    print(f'VX: {round(vx_sum / counterp, 4)}')
+    print(f'GM: {round(gm_sum / counterp, 4)}')
     print(f'BERTScore: {round(bert_scores, 4)}')
